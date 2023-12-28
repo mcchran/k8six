@@ -48,7 +48,7 @@ ENV RELEASE_NODE_IP="127.0.0.1"
 ENV RELEASE_NAME="${BUILD_REL}"
 
 # This will be the full nodename
-ENV RELEASE_NODE="${RELEASE_NAME}@${RELEASE_NODE_IP}"
+# ENV RELEASE_NODE="${RELEASE_NAME}@${RELEASE_NODE_IP}"
 
 # FIXME: bellow we have a hard coded ... k8six ... 
 ENTRYPOINT ["/opt/k8six/bin/k8six"]
