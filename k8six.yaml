@@ -1,0 +1,86 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8six
+  namespace: default
+  labels:
+    app.kubernetes.io/name: k8six
+    app.kubernetes.io/instance: k8six-cluster
+spec:
+  # each pod is equivalent to a beam node ...
+  # there are two ways to go:
+  # 1. setup a number of pods -- no cpu no memory limits ... on top of hpa + KARPENTER
+  # 2. move pods to a dameonset -- no cpu no memory limits ... and use elixir metrics to scale up the K8s cluster
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: k8six
+      app.kubernetes.io/instance: k8six-node
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: k8six
+        app.kubernetes.io/instance: k8six-node
+    spec:
+      containers:
+        - name: main
+          image: mcchran/k8six:latest
+          imagePullPolicy: Always
+          env:
+            - name: RELEASE_NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: RELEASE_COOKIE
+              valueFrom:
+                secretKeyRef:
+                  name: k8six-cluster
+                  key: ERLANG_COOKIE
+          ports:
+            - name: epmd
+              containerPort: 4369
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 400m
+              memory: 500Mi
+            requests:
+              cpu: 400m
+              memory: 500Mi
+
+---
+# Headless service for pod ip discovery
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8six-svc-headless
+  namespace: default
+  labels:
+    app.kubernetes.io/name: k8six
+    app.kubernetes.io/instance: k8six-svc-headless
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - port: 4369
+      targetPort: epmd
+      protocol: TCP
+      name: epmd
+  selector:
+    app.kubernetes.io/name: k8six
+    app.kubernetes.io/instance: k8six-node
+
+---
+# the secret for the erlang cookie
+apiVersion: v1
+kind: Secret
+metadata:
+  name: k8six-cluster
+  namespace: default
+  labels:
+    app.kubernetes.io/name: k8six
+    app.kubernetes.io/instance: k8six-cluster
+type: Opaque
+data:
+  ERLANG_COOKIE: Y2FuZHJpa29zCg==
