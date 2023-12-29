@@ -13,6 +13,9 @@ WORKDIR /workspace
 
 ENV MIX_ENV=${BUILD_ENV}
 
+# let's install git 
+RUN apk add --no-cache git
+
 # Fetch dependencies
 RUN mix deps.get
 
@@ -49,6 +52,12 @@ ENV RELEASE_NAME="${BUILD_REL}"
 
 # This will be the full nodename
 # ENV RELEASE_NODE="${RELEASE_NAME}@${RELEASE_NODE_IP}"
+
+# This will be the basename of our node
+ENV K8SIX_APP_NAME="${BUILD_REL}"
+
+# this is going to be overriden by the service name on runtime
+ENV DATAPIO_SERVICE_NAME="k8six-svc"
 
 # FIXME: bellow we have a hard coded ... k8six ... 
 ENTRYPOINT ["/opt/k8six/bin/k8six"]

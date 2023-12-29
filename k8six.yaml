@@ -37,6 +37,9 @@ spec:
                 secretKeyRef:
                   name: k8six-cluster
                   key: ERLANG_COOKIE
+            # Not sure if the following is ever used ... 
+            - name: K8SIX_SERVICE_NAME
+              value: "k8six-svc-headless"
           ports:
             - name: epmd
               containerPort: 4369
