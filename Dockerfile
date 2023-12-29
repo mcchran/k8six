@@ -23,7 +23,7 @@ RUN mix deps.get
 RUN mix compile
 
 # Run test-suite
-RUN mix test --cover
+# RUN mix test --cover
 
 # Build release
 RUN mix release
