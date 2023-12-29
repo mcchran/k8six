@@ -10,7 +10,8 @@ defmodule K8six.Application do
     children = [
       # Starts a worker by calling: K8six.Worker.start_link(arg)
       # {K8six.Worker, arg}
-      K8six.Observer
+      K8six.Observer,
+      K8six.Ping
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
